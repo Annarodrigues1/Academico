@@ -5,78 +5,109 @@ from .models import (
     Turnos, Ocorrencia, CursoDisciplina, AvaliacaoTipo, PessoaTurma
 )
 
-# i) Ocupação e Pessoas
+# ===== INLINES =====
+
 class PessoaInline(admin.TabularInline):
     model = Pessoa
     extra = 1
+
+class CursoInline(admin.TabularInline):
+    model = Curso
+    extra = 1
+
+class CursoDisciplinaInline(admin.TabularInline):
+    model = CursoDisciplina
+    extra = 1
+
+class AvaliacaoInline(admin.TabularInline):
+    model = Avaliacao
+    extra = 1
+
+class PessoaTurmaInline(admin.TabularInline):
+    model = PessoaTurma
+    extra = 1
+
+class MatriculaInline(admin.TabularInline):
+    model = Matricula
+    extra = 1
+
+class FrequenciaInline(admin.TabularInline):
+    model = Frequencia
+    extra = 1
+
+class OcorrenciaInline(admin.TabularInline):
+    model = Ocorrencia
+    extra = 1
+
+class InstituicaoEnsinoInline(admin.TabularInline):
+    model = InstituicaoEnsino
+    extra = 1
+
+# ===== ADMIN PRINCIPAL =====
 
 @admin.register(Ocupacao)
 class OcupacaoAdmin(admin.ModelAdmin):
     inlines = [PessoaInline]
 
-# ii) Instituição e Cursos
-class CursoInlineInstituicao(admin.TabularInline):
-    model = Curso
-    extra = 1
-
 @admin.register(InstituicaoEnsino)
 class InstituicaoEnsinoAdmin(admin.ModelAdmin):
-    inlines = [CursoInlineInstituicao]
-
-# iii) Área do saber e Cursos
-class CursoInlineArea(admin.TabularInline):
-    model = Curso
-    extra = 1
+    inlines = [CursoInline]
 
 @admin.register(AreaSaber)
 class AreaSaberAdmin(admin.ModelAdmin):
-    inlines = [CursoInlineArea]
-
-# iv) Curso e Disciplinas (via CursoDisciplina)
-class CursoDisciplinaInline(admin.TabularInline):
-    model = CursoDisciplina
-    extra = 1
+    inlines = [CursoInline]
 
 @admin.register(Curso)
 class CursoAdmin(admin.ModelAdmin):
     inlines = [CursoDisciplinaInline]
 
-# v) Disciplina e Avaliações
-class AvaliacaoInline(admin.TabularInline):
-    model = Avaliacao
-    extra = 1
-
 @admin.register(Disciplina)
 class DisciplinaAdmin(admin.ModelAdmin):
     inlines = [AvaliacaoInline]
-
-# vi) Turma e Pessoas (via PessoaTurma)
-class PessoaTurmaInline(admin.TabularInline):
-    model = PessoaTurma
-    extra = 1
 
 @admin.register(Turma)
 class TurmaAdmin(admin.ModelAdmin):
     inlines = [PessoaTurmaInline]
 
-# Pessoa (com frequência)
-class FrequenciaInline(admin.TabularInline):
-    model = Frequencia
-    extra = 1
-
 @admin.register(Pessoa)
 class PessoaAdmin(admin.ModelAdmin):
-    inlines = [FrequenciaInline]
+    inlines = [MatriculaInline, FrequenciaInline, OcorrenciaInline]
 
-# Cidade
 @admin.register(Cidade)
 class CidadeAdmin(admin.ModelAdmin):
     list_display = ['nome', 'uf']
+    inlines = [InstituicaoEnsinoInline]
 
-# Registros simples
-admin.site.register(Matricula)
-admin.site.register(AvaliacaoTipo)
-admin.site.register(Ocorrencia)
-admin.site.register(Turnos)
-admin.site.register(CursoDisciplina)
-admin.site.register(PessoaTurma)
+@admin.register(AvaliacaoTipo)
+class AvaliacaoTipoAdmin(admin.ModelAdmin):
+    list_display = ['nome']
+
+@admin.register(Matricula)
+class MatriculaAdmin(admin.ModelAdmin):
+    list_display = ['pessoa', 'curso', 'instituicao', 'data_inicio', 'data_previsao_termino']
+    list_filter = ['curso', 'instituicao']
+    search_fields = ['pessoa__nome', 'curso__nome']
+
+@admin.register(Avaliacao)
+class AvaliacaoAdmin(admin.ModelAdmin):
+    list_display = ['descricao', 'curso', 'disciplina', 'tipo']
+
+@admin.register(Frequencia)
+class FrequenciaAdmin(admin.ModelAdmin):
+    list_display = ['pessoa', 'curso', 'disciplina', 'numero_faltas']
+
+@admin.register(Ocorrencia)
+class OcorrenciaAdmin(admin.ModelAdmin):
+    list_display = ['descricao', 'data', 'pessoa', 'curso', 'disciplina']
+
+@admin.register(Turnos)
+class TurnosAdmin(admin.ModelAdmin):
+    list_display = ['nome']
+
+@admin.register(CursoDisciplina)
+class CursoDisciplinaAdmin(admin.ModelAdmin):
+    list_display = ['disciplina', 'curso']
+
+@admin.register(PessoaTurma)
+class PessoaTurmaAdmin(admin.ModelAdmin):
+    list_display = ['pessoa', 'turma']
